@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026 Masters Pool</title>
+  <style>
+    :root {
+      --green-dark:  #1a4731;
+      --green:       #2d6a4f;
+      --gold:        #c9a84c;
+      --gold-light:  #e8c97a;
+      --cream:       #f5f0e8;
+      --white:       #ffffff;
+      --text:        #1a1a1a;
+      --muted:       #888;
+      --border:      #ede8de;
+      --red:         #c0392b;
+      --score-under: #1a6e3a;
+      --score-over:  #c0392b;
+      --score-even:  #555;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--green-dark);
+      color: var(--white);
+      padding: 18px 20px 14px;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+    .header-sub {
+      font-size: 0.78rem;
+      color: var(--gold-light);
+      margin-top: 3px;
+      letter-spacing: 0.3px;
+    }
+    .last-updated {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 6px;
+    }
+    .refresh-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.7);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .refresh-btn:active { opacity: 0.6; }
+
+    /* ── Column labels ── */
+    .col-labels {
+      display: flex;
+      align-items: center;
+      padding: 8px 16px 4px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .col-labels span {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .col-rank   { width: 36px; flex-shrink: 0; }
+    .col-name   { flex: 1; }
+    .col-pts    { width: 44px; text-align: right; padding-right: 26px; }
+
+    /* ── Scoreboard ── */
+    .scoreboard {
+      padding: 4px 12px 24px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ── Participant card ── */
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      transition: box-shadow 0.15s;
+    }
+    .card.expanded { box-shadow: 0 3px 12px rgba(0,0,0,0.12); }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      padding: 13px 14px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      gap: 4px;
+    }
+
+    /* Top 3 gold/silver/bronze tint */
+    .card[data-rank="1"] .card-header { background: linear-gradient(90deg, #fffbe6 0%, #fff9d0 100%); }
+    .card[data-rank="2"] .card-header { background: linear-gradient(90deg, #f8f8f8 0%, #f0f0f0 100%); }
+    .card[data-rank="3"] .card-header { background: linear-gradient(90deg, #fff4ec 0%, #ffeedd 100%); }
+
+    .p-rank {
+      width: 32px;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .card[data-rank="1"] .p-rank { color: var(--gold); font-size: 1rem; }
+    .card[data-rank="2"] .p-rank { color: #888; }
+    .card[data-rank="3"] .p-rank { color: #b07d5a; }
+
+    .p-name {
+      flex: 1;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .p-pts {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      min-width: 32px;
+      text-align: right;
+    }
+    .card[data-rank="1"] .p-pts { color: var(--gold); }
+
+    .p-pts-label {
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-left: 2px;
+      font-weight: 400;
+      align-self: flex-end;
+      padding-bottom: 2px;
+    }
+
+    .chevron {
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-left: 8px;
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    .card.expanded .chevron { transform: rotate(180deg); }
+
+    /* ── Golfer rows ── */
+    .golfer-list {
+      display: none;
+      border-top: 1px solid var(--border);
+    }
+    .card.expanded .golfer-list { display: block; }
+
+    .golfer-row {
+      display: flex;
+      align-items: center;
+      padding: 9px 14px 9px 46px;
+      border-bottom: 1px solid var(--border);
+      gap: 6px;
+    }
+    .golfer-row:last-child { border-bottom: none; }
+
+    .g-name {
+      flex: 1;
+      font-size: 0.875rem;
+      color: var(--text);
+    }
+    .g-name.cut-wd { color: var(--muted); text-decoration: line-through; }
+
+    .badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 4px;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+    }
+    .badge-cut { background: #fde8e8; color: var(--red); }
+    .badge-wd  { background: #ffe8cc; color: #c06000; }
+
+    .g-thru {
+      font-size: 0.72rem;
+      color: var(--muted);
+      min-width: 52px;
+      text-align: right;
+    }
+
+    .g-score {
+      font-size: 0.82rem;
+      font-weight: 700;
+      min-width: 30px;
+      text-align: right;
+    }
+    .g-score.under { color: var(--score-under); }
+    .g-score.over  { color: var(--score-over); }
+    .g-score.even  { color: var(--score-even); }
+    .g-score.ns    { color: var(--muted); font-weight: 400; }
+
+    .g-pts {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      min-width: 24px;
+      text-align: right;
+    }
+
+    /* ── Golfer list header ── */
+    .golfer-header {
+      display: flex;
+      padding: 5px 14px 5px 46px;
+      gap: 6px;
+      background: #faf7f2;
+    }
+    .golfer-header span {
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .gh-name  { flex: 1; }
+    .gh-thru  { min-width: 52px; text-align: right; }
+    .gh-score { min-width: 30px; text-align: right; }
+    .gh-pts   { min-width: 24px; text-align: right; }
+
+    /* ── States ── */
+    .loading-msg {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .error-msg {
+      background: #fff0f0;
+      border: 1px solid #fcc;
+      border-radius: 10px;
+      padding: 18px;
+      margin: 16px 0;
+      text-align: center;
+      color: var(--red);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    .error-msg small { display: block; margin-top: 6px; color: var(--muted); font-size: 0.75rem; }
+
+    /* ── Legend ── */
+    .legend {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      padding: 0 0 16px;
+    }
+    .legend span { margin: 0 6px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>⛳ 2026 Masters Pool</h1>
+  <div class="header-sub">Augusta National &nbsp;·&nbsp; April 10–13, 2026</div>
+  <div class="last-updated" id="lastUpdated">
+    Loading…
+    <button class="refresh-btn" onclick="fetchScores()">↻ Refresh</button>
+  </div>
+</header>
+
+<div class="col-labels">
+  <span class="col-rank">#</span>
+  <span class="col-name">Player</span>
+  <span class="col-pts">Pts</span>
+</div>
+
+<div class="scoreboard" id="scoreboard">
+  <div class="loading-msg">Fetching live scores…</div>
+</div>
+
+<div class="legend">
+  <span>Pts = max(0, 10 − score to par)</span>
+  &nbsp;·&nbsp;
+  <span>Tap a row to expand</span>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Draft Data
+// ─────────────────────────────────────────────────────────────────────────────
+const DRAFT = [
+  { name: 'Travis', golfers: ['Ludvig Aberg',        'Si Woo Kim',       'Sam Burns',      'Max Greyserman',              'Sam Stevens',               'Michael Brennan']     },
+  { name: 'Levi',   golfers: ['Cameron Young',        'Jordan Spieth',    'Adam Scott',     'Kurt Kitayama',               'Andrew Novak',              'Tom Mckibbin']        },
+  { name: 'Zboy',   golfers: ['Scottie Scheffler',    'Shane Lowry',      'Jacob Bridgeman','Wyndham Clark',               'Michael Kim',               'Danny Willett']       },
+  { name: 'Lump',   golfers: ['Patrick Reed',         'Sepp Straka',      'Gary Woodland',  'Harry Hall',                  'Matt McCarty',              'Ethan Fang']          },
+  { name: 'Rod',    golfers: ['Xander Schauffele',    'Patrick Cantlay',  'Cameron Smith',  'Dustin Johnson',              'Nick Taylor',               'Fifa Laopakdee']      },
+  { name: 'Doug',   golfers: ['Bryson DeChambeau',    'Jason Day',        'Justin Thomas',  'Ben Griffin',                 'Kristoffer Reitan',         'Sami Valimaki']       },
+  { name: 'AJ',     golfers: ['Brooks Koepka',        'Viktor Hovland',   'Max Homa',       'Marco Penge',                 'Zach Johnson',              'Vijay Singh']         },
+  { name: 'Nick',   golfers: ['Min Woo Lee',          'Chris Gotterup',   'Rasmus Hojgaard','Sergio Garcia',               'Davis Riley',               'Haotong Li']          },
+  { name: 'JT',     golfers: ['Matt Fitzpatrick',     'Jake Knapp',       'Nicolai Hojgaard','Keegan Bradley',             'Rasmus Neergaard-Petersen', 'Mason Howell']        },
+  { name: 'Mike',   golfers: ['Tommy Fleetwood',      'Russell Henley',   'Maverick McNealy','Aaron Rai',                  'Ryan Gerard',               'Brandon Holtz']       },
+  { name: 'Greg',   golfers: ['Justin Rose',          'Akshay Bhatia',    'Harris English', 'Sungjae Im',                  'Casey Jarvis',              'Johnny Keefer']       },
+  { name: 'Jerm',   golfers: ['Jon Rahm',             'J.J. Spaun',       'Corey Conners',  'Ryan Fox',                    'Brian Harman',              'Naoyuki Kataoka']     },
+  { name: 'Jack',   golfers: ['Collin Morikawa',      'Rory McIlroy',     'Alex Noren',     'Bubba Watson',                'Aldrich Potgieter',         'Charl Schwartzel']    },
+  { name: 'Sam',    golfers: ['Robert MacIntyre',     'Hideki Matsuyama', 'Tyrrell Hatton', 'Daniel Berger',               'Nico Echavarria',           'Carlos Ortiz']        },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Name normalization — strips diacritics, amateur tag, punctuation, lowercases
+// ─────────────────────────────────────────────────────────────────────────────
+function normalize(name) {
+  return name
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')   // strip diacritics
+    .replace(/\(a\)/g, '')                               // strip amateur tag
+    .replace(/[^a-z0-9\s\-]/g, '')                      // strip punctuation
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pool scoring rule
+// ─────────────────────────────────────────────────────────────────────────────
+function poolPoints(scoreToPar) {
+  return Math.max(0, 10 - scoreToPar);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Format score-to-par for display ("E", "-5", "+2", "-")
+// ─────────────────────────────────────────────────────────────────────────────
+function fmtScore(value, hasStarted) {
+  if (!hasStarted) return '-';
+  if (value === 0) return 'E';
+  if (value < 0) return String(value);   // already "-5"
+  return '+' + value;                    // "+2"
+}
+
+function scoreClass(value, hasStarted) {
+  if (!hasStarted) return 'ns';
+  if (value < 0) return 'under';
+  if (value > 0) return 'over';
+  return 'even';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fetch & process
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchScores() {
+  document.getElementById('lastUpdated').innerHTML =
+    'Refreshing… <button class="refresh-btn" onclick="fetchScores()">↻ Refresh</button>';
+
+  try {
+    const res = await fetch(
+      'https://site.api.espn.com/apis/site/v2/sports/golf/leaderboard?league=pga',
+      { cache: 'no-store' }
+    );
+    if (!res.ok) throw new Error(`ESPN API returned HTTP ${res.status}`);
+    const data = await res.json();
+
+    // Support both response shapes the API has been observed to use
+    const competitors =
+      data.events?.[0]?.competitions?.[0]?.competitors ||
+      data.competitions?.[0]?.competitors ||
+      data.competitors ||
+      [];
+
+    if (!competitors.length) throw new Error('No competitor data found in API response');
+
+    // Build a lookup map: normalizedName → live data
+    const liveMap = {};
+    for (const c of competitors) {
+      const rawName = c.athlete?.displayName || c.displayName || '';
+      if (!rawName) continue;
+
+      const key = normalize(rawName);
+
+      // Score to par comes from statistics array
+      const stpStat   = c.statistics?.find(s => s.name === 'scoreToPar');
+      const scoreToPar = stpStat?.value ?? 0;
+
+      // Determine status
+      const typeName = c.status?.type?.name || '';
+      const state    = c.status?.type?.state || 'pre';
+      const thru     = c.status?.thru ?? 0;
+      const detail   = c.status?.detail || '';
+
+      const isCut = typeName.includes('CUT');
+      const isWD  = typeName.includes('WITHDRAWN') || typeName.includes('WD') || typeName.includes('DISQUALIF');
+
+      let thruLabel;
+      if (isCut)                                  thruLabel = 'CUT';
+      else if (isWD)                              thruLabel = 'WD';
+      else if (state === 'post' ||
+               typeName.includes('FINISH') ||
+               typeName.includes('COMPLETE'))     thruLabel = 'F';
+      else if (state === 'in' && thru > 0)        thruLabel = `Thru ${thru}`;
+      else if (state === 'in')                    thruLabel = 'F'; // in-progress but thru=0 edge case
+      else                                        thruLabel = '-';  // not started
+
+      liveMap[key] = {
+        scoreToPar,
+        hasStarted: state !== 'pre' || isCut || isWD,
+        thruLabel,
+        isCut,
+        isWD,
+      };
+    }
+
+    // Calculate each participant's scores
+    const participants = DRAFT.map(p => {
+      let total = 0;
+      const golfers = p.golfers.map(name => {
+        const live = liveMap[normalize(name)];
+        const stp    = live?.scoreToPar ?? 0;
+        const pts    = poolPoints(stp);
+        total += pts;
+        return {
+          name,
+          scoreToPar:  stp,
+          hasStarted:  live?.hasStarted ?? false,
+          thruLabel:   live?.thruLabel ?? '-',
+          isCut:       live?.isCut ?? false,
+          isWD:        live?.isWD ?? false,
+          points:      pts,
+          found:       !!live,
+        };
+      });
+      return { name: p.name, golfers, total };
+    });
+
+    // Sort descending by total points; stable tie order preserves draft order
+    participants.sort((a, b) => b.total - a.total);
+
+    // Assign ranks (tied players share rank)
+    participants.forEach((p, i) => {
+      p.rankNum = participants.filter(o => o.total > p.total).length + 1;
+      p.tied    = participants.some((o, j) => j !== i && o.total === p.total);
+      p.rankDisplay = p.tied ? `T${p.rankNum}` : `${p.rankNum}`;
+    });
+
+    render(participants);
+
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('lastUpdated').innerHTML =
+      `Updated ${now} <button class="refresh-btn" onclick="fetchScores()">↻ Refresh</button>`;
+
+  } catch (err) {
+    console.error('[PGA Pool]', err);
+    const sb = document.getElementById('scoreboard');
+    // Only replace content if it's still the loading placeholder
+    if (!sb.querySelector('.card')) {
+      sb.innerHTML = `<div class="error-msg">
+        Couldn't load live scores.<br>
+        Scores will retry automatically.
+        <small>${err.message}</small>
+      </div>`;
+    }
+    document.getElementById('lastUpdated').innerHTML =
+      `Update failed <button class="refresh-btn" onclick="fetchScores()">↻ Retry</button>`;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Render
+// ─────────────────────────────────────────────────────────────────────────────
+function render(participants) {
+  const sb = document.getElementById('scoreboard');
+
+  // Remember which cards are expanded so we can restore state after re-render
+  const expanded = new Set(
+    [...sb.querySelectorAll('.card.expanded')].map(el => el.dataset.name)
+  );
+
+  sb.innerHTML = participants.map(p => {
+    const isExpanded = expanded.has(p.name);
+    const rankAttr   = p.rankNum <= 3 ? p.rankNum : '';
+
+    const golferRows = p.golfers.map(g => {
+      const nameClass   = (g.isCut || g.isWD) ? 'g-name cut-wd' : 'g-name';
+      const badge       = g.isCut ? '<span class="badge badge-cut">CUT</span>'
+                        : g.isWD  ? '<span class="badge badge-wd">WD</span>'
+                        : '';
+      const scoreStr    = fmtScore(g.scoreToPar, g.hasStarted);
+      const scoreColor  = scoreClass(g.scoreToPar, g.hasStarted);
+
+      return `
+        <div class="golfer-row">
+          <span class="${nameClass}">${g.name}</span>
+          ${badge}
+          <span class="g-thru">${g.thruLabel}</span>
+          <span class="g-score ${scoreColor}">${scoreStr}</span>
+          <span class="g-pts">${g.points}</span>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="card ${isExpanded ? 'expanded' : ''}" data-name="${p.name}" data-rank="${rankAttr}">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div class="p-rank">${p.rankDisplay}</div>
+          <div class="p-name">${p.name}</div>
+          <div class="p-pts">${p.total}<span class="p-pts-label">pts</span></div>
+          <div class="chevron">▼</div>
+        </div>
+        <div class="golfer-list">
+          <div class="golfer-header">
+            <span class="gh-name">Golfer</span>
+            <span class="gh-thru">Thru</span>
+            <span class="gh-score">Score</span>
+            <span class="gh-pts">Pts</span>
+          </div>
+          ${golferRows}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleCard(header) {
+  header.closest('.card').classList.toggle('expanded');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init — fetch now, then every 60 seconds
+// ─────────────────────────────────────────────────────────────────────────────
+fetchScores();
+setInterval(fetchScores, 60 * 1000);
+</script>
+</body>
+</html>

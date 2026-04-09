@@ -329,7 +329,12 @@ const DRAFT = [
 function normalize(name) {
   return name
     .toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')   // strip diacritics
+    // Replace letters that don't decompose via NFD but have ASCII equivalents
+    .replace(/[øØ]/g, 'o')
+    .replace(/[ðÐ]/g, 'd')
+    .replace(/[þÞ]/g, 'th')
+    .replace(/ß/g, 'ss')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')   // strip remaining diacritics
     .replace(/\(a\)/g, '')                               // strip amateur tag
     .replace(/[^a-z0-9\s\-]/g, '')                      // strip punctuation
     .replace(/\s+/g, ' ')

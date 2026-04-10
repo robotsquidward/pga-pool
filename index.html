@@ -435,7 +435,7 @@ async function fetchScores() {
       const golfers = p.golfers.map(name => {
         const live = liveMap[normalize(name)];
         const stp    = live?.scoreToPar ?? 0;
-        const pts    = poolPoints(stp);
+        const pts    = (live?.isCut || live?.isWD) ? 0 : poolPoints(stp);
         total += pts;
         return {
           name,

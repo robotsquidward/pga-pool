@@ -4,19 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="favicon.png">
-  <title>2026 Masters Pool</title>
+  <title>2026 PGA Championship Pool</title>
   <style>
     :root {
-      --green-dark:  #1a4731;
-      --green:       #2d6a4f;
-      --gold:        #c9a84c;
-      --gold-light:  #e8c97a;
-      --cream:       #f5f0e8;
+      --navy-dark:   #0a1f44;
+      --navy:        #14306e;
+      --blue:        #1e5aa8;
+      --blue-light:  #6fa8dc;
+      --silver:      #e6ecf2;
+      --cream:       #f4f7fb;
       --white:       #ffffff;
       --text:        #1a1a1a;
       --muted:       #888;
-      --border:      #ede8de;
+      --border:      #dde4ec;
       --red:         #c0392b;
+      --gold:        #c9a84c;
       --score-under: #1a6e3a;
       --score-over:  #c0392b;
       --score-even:  #555;
@@ -33,7 +35,7 @@
 
     /* ── Header ── */
     header {
-      background: var(--green-dark);
+      background: var(--navy-dark);
       color: var(--white);
       padding: 18px 20px 14px;
       text-align: center;
@@ -49,19 +51,19 @@
     }
     .header-sub {
       font-size: 0.78rem;
-      color: var(--gold-light);
+      color: var(--blue-light);
       margin-top: 3px;
       letter-spacing: 0.3px;
     }
     .last-updated {
       font-size: 0.7rem;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.6);
       margin-top: 6px;
     }
     .refresh-btn {
       background: none;
       border: 1px solid rgba(255,255,255,0.3);
-      color: rgba(255,255,255,0.7);
+      color: rgba(255,255,255,0.8);
       border-radius: 4px;
       padding: 2px 8px;
       font-size: 0.7rem;
@@ -120,7 +122,7 @@
 
     /* Top 3 gold/silver/bronze tint */
     .card[data-rank="1"] .card-header { background: linear-gradient(90deg, #fffbe6 0%, #fff9d0 100%); }
-    .card[data-rank="2"] .card-header { background: linear-gradient(90deg, #f8f8f8 0%, #f0f0f0 100%); }
+    .card[data-rank="2"] .card-header { background: linear-gradient(90deg, #f4f7fb 0%, #e6ecf2 100%); }
     .card[data-rank="3"] .card-header { background: linear-gradient(90deg, #fff4ec 0%, #ffeedd 100%); }
 
     .p-rank {
@@ -143,7 +145,7 @@
     .p-pts {
       font-size: 1.15rem;
       font-weight: 700;
-      color: var(--green-dark);
+      color: var(--navy);
       min-width: 32px;
       text-align: right;
     }
@@ -222,7 +224,7 @@
     .g-pts {
       font-size: 0.875rem;
       font-weight: 700;
-      color: var(--green-dark);
+      color: var(--navy);
       min-width: 24px;
       text-align: right;
     }
@@ -232,7 +234,7 @@
       display: flex;
       padding: 5px 14px 5px 46px;
       gap: 6px;
-      background: #faf7f2;
+      background: var(--silver);
     }
     .golfer-header span {
       font-size: 0.62rem;
@@ -279,8 +281,8 @@
 <body>
 
 <header>
-  <h1>⛳ 2026 Masters Pool</h1>
-  <div class="header-sub">Augusta National &nbsp;·&nbsp; April 10–13, 2026</div>
+  <h1>⛳ 2026 PGA Championship Pool</h1>
+  <div class="header-sub">Aronimink Golf Club &nbsp;·&nbsp; May 14–17, 2026</div>
   <div class="last-updated" id="lastUpdated">
     Loading…
     <button class="refresh-btn" onclick="fetchScores()">↻ Refresh</button>
@@ -305,23 +307,24 @@
 
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
-// Draft Data
+// Draft Data — 2026 PGA Championship
 // ─────────────────────────────────────────────────────────────────────────────
 const DRAFT = [
-  { name: 'Travis', golfers: ['Ludvig Aberg',        'Si Woo Kim',       'Sam Burns',      'Max Greyserman',              'Sam Stevens',               'Michael Brennan']     },
-  { name: 'Levi',   golfers: ['Cameron Young',        'Jordan Spieth',    'Adam Scott',     'Kurt Kitayama',               'Andrew Novak',              'Tom Mckibbin']        },
-  { name: 'Zboy',   golfers: ['Scottie Scheffler',    'Shane Lowry',      'Jacob Bridgeman','Wyndham Clark',               'Michael Kim',               'Danny Willett']       },
-  { name: 'Lump',   golfers: ['Patrick Reed',         'Sepp Straka',      'Gary Woodland',  'Harry Hall',                  'Matt McCarty',              'Ethan Fang']          },
-  { name: 'Rod',    golfers: ['Xander Schauffele',    'Patrick Cantlay',  'Cameron Smith',  'Dustin Johnson',              'Nick Taylor',               'Fifa Laopakdee']      },
-  { name: 'Doug',   golfers: ['Bryson DeChambeau',    'Jason Day',        'Justin Thomas',  'Ben Griffin',                 'Kristoffer Reitan',         'Sami Valimaki']       },
-  { name: 'AJ',     golfers: ['Brooks Koepka',        'Viktor Hovland',   'Max Homa',       'Marco Penge',                 'Zach Johnson',              'Vijay Singh']         },
-  { name: 'Nick',   golfers: ['Min Woo Lee',          'Chris Gotterup',   'Rasmus Hojgaard','Sergio Garcia',               'Davis Riley',               'Haotong Li']          },
-  { name: 'JT',     golfers: ['Matt Fitzpatrick',     'Jake Knapp',       'Nicolai Hojgaard','Keegan Bradley',             'Rasmus Neergaard-Petersen', 'Mason Howell']        },
-  { name: 'Mike',   golfers: ['Tommy Fleetwood',      'Russell Henley',   'Maverick McNealy','Aaron Rai',                  'Ryan Gerard',               'Brandon Holtz']       },
-  { name: 'Greg',   golfers: ['Justin Rose',          'Akshay Bhatia',    'Harris English', 'Sungjae Im',                  'Casey Jarvis',              'Johnny Keefer']       },
-  { name: 'Jerm',   golfers: ['Jon Rahm',             'J.J. Spaun',       'Corey Conners',  'Ryan Fox',                    'Brian Harman',              'Naoyuki Kataoka']     },
-  { name: 'Jack',   golfers: ['Collin Morikawa',      'Rory McIlroy',     'Alex Noren',     'Bubba Watson',                'Aldrich Potgieter',         'Charl Schwartzel']    },
-  { name: 'Sam',    golfers: ['Robert MacIntyre',     'Hideki Matsuyama', 'Tyrrell Hatton', 'Daniel Berger',               'Nico Echavarria',           'Carlos Ortiz']        },
+  { name: 'Travis', golfers: ['Justin Rose',         'Viktor Hovland',    'Michael Thorbjornsen', 'Joaquin Niemann',  'Michael Brennan',  'Max Greyserman']        },
+  { name: 'Doug',   golfers: ['Cameron Young',       'Jordan Spieth',     'Nicolai Hojgaard',     'Alex Noren',       'Denny McCarthy',   'Nico Echavarria']       },
+  { name: 'Rick',   golfers: ['Ludvig Aberg',        'Min Woo Lee',       'Jason Day',            'Harry Hall',       'Daniel Berger',    'Marco Penge']           },
+  { name: 'Jack',   golfers: ['Russell Henley',      'Tyrrell Hatton',    'Sungjae Im',           'Corey Conners',    'Billy Horschel',   'Cameron Smith']         },
+  { name: 'Lump',   golfers: ['Patrick Reed',        'Alex Fitzpatrick',  'Ryan Fox',             'Keith Mitchell',   'Matt Wallace',     'Angel Ayora']           },
+  { name: 'Mike',   golfers: ['Patrick Cantlay',     'Sam Burns',         'Sahith Theegala',      'Pierceson Coody',  'JT Poston',        'Christiaan Bezuidenhout']},
+  { name: 'AJ',     golfers: ['Matt Fitzpatrick',    'Rickie Fowler',     'Kurt Kitayama',        'Sudarshan Yellamaraju', 'Haotong Li',  'Aldrich Potgieter']     },
+  { name: 'Zboy',   golfers: ['Xander Schauffele',   'J.J. Spaun',        'Maverick McNealy',     'Kristoffer Reitan','Dustin Johnson',   'Aaron Rai']             },
+  { name: 'Sam',    golfers: ['Jon Rahm',            'Si Woo Kim',        'Harris English',       'Thomas Detry',     'Max Homa',         'Jordan Smith']          },
+  { name: 'Greg',   golfers: ['Brooks Koepka',       'Chris Gotterup',    'Matt McCarty',         'Alex Smalley',     'Brian Harman',     'Andrew Novak']          },
+  { name: 'Nick',   golfers: ['Scottie Scheffler',   'Shane Lowry',       'Gary Woodland',        'Ryan Gerard',      'Joe Highsmith',    'Andy Sullivan']         },
+  { name: 'JT',     golfers: ['Tommy Fleetwood',     'Sepp Straka',       'Keegan Bradley',       'Jacob Bridgeman',  'Sam Stevens',      'Ricky Castillo']        },
+  { name: 'Jerm',   golfers: ['Collin Morikawa',     'Justin Thomas',     'Akshay Bhatia',        'Wyndham Clark',    'Nick Taylor',      'Michael Block']         },
+  { name: 'Rod',    golfers: ['Rory McIlroy',        'Robert MacIntyre',  'Hideki Matsuyama',     'David Puig',       'Taylor Pendrith',  'Stephan Jaeger']        },
+  { name: 'Levi',   golfers: ['Bryson DeChambeau',   'Adam Scott',        'Ben Griffin',          'Rasmus Hojgaard',  'Ryo Hisatsune',    'Michael Kim']           },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -335,7 +338,7 @@ function normalize(name) {
     .replace(/[ðÐ]/g, 'd')
     .replace(/[þÞ]/g, 'th')
     .replace(/ß/g, 'ss')
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')   // strip remaining diacritics
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')   // strip remaining diacritics
     .replace(/\(a\)/g, '')                               // strip amateur tag
     .replace(/[^a-z0-9\s\-]/g, '')                      // strip punctuation
     .replace(/\s+/g, ' ')

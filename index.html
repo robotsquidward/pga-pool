@@ -4,23 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="favicon.png">
-  <title>2026 PGA Championship Pool</title>
+  <title>2026 U.S. Open Pool</title>
   <style>
     :root {
-      --navy-dark:   #0a1f44;
-      --navy:        #14306e;
-      --blue:        #1e5aa8;
-      --blue-light:  #6fa8dc;
-      --silver:      #e6ecf2;
+      --navy-dark:   #0a1e3f;
+      --navy:        #13294b;
+      --blue:        #1b4079;
+      --blue-light:  #8fb0d6;
+      --silver:      #e8edf3;
       --cream:       #f4f7fb;
       --white:       #ffffff;
       --text:        #1a1a1a;
       --muted:       #888;
       --border:      #dde4ec;
-      --red:         #c0392b;
+      --red:         #c8102e;
       --gold:        #c9a84c;
       --score-under: #1a6e3a;
-      --score-over:  #c0392b;
+      --score-over:  #c8102e;
       --score-even:  #555;
     }
 
@@ -43,6 +43,7 @@
       top: 0;
       z-index: 10;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      border-bottom: 3px solid var(--red);
     }
     header h1 {
       font-size: 1.25rem;
@@ -281,8 +282,8 @@
 <body>
 
 <header>
-  <h1>⛳ 2026 PGA Championship Pool</h1>
-  <div class="header-sub">Aronimink Golf Club &nbsp;·&nbsp; May 14–17, 2026</div>
+  <h1>⛳ 2026 U.S. Open Pool</h1>
+  <div class="header-sub">Shinnecock Hills Golf Club &nbsp;·&nbsp; June 18–21, 2026</div>
   <div class="last-updated" id="lastUpdated">
     Loading…
     <button class="refresh-btn" onclick="fetchScores()">↻ Refresh</button>
@@ -307,24 +308,21 @@
 
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
-// Draft Data — 2026 PGA Championship
+// Draft Data — 2026 U.S. Open
 // ─────────────────────────────────────────────────────────────────────────────
 const DRAFT = [
-  { name: 'Travis', golfers: ['Justin Rose',         'Viktor Hovland',    'Michael Thorbjornsen', 'Joaquin Niemann',  'Michael Brennan',  'Max Greyserman']        },
-  { name: 'Doug',   golfers: ['Cameron Young',       'Jordan Spieth',     'Nicolai Hojgaard',     'Alex Noren',       'Denny McCarthy',   'Nico Echavarria']       },
-  { name: 'Rick',   golfers: ['Ludvig Aberg',        'Min Woo Lee',       'Jason Day',            'Harry Hall',       'Daniel Berger',    'Marco Penge']           },
-  { name: 'Jack',   golfers: ['Russell Henley',      'Tyrrell Hatton',    'Sungjae Im',           'Corey Conners',    'Billy Horschel',   'Cameron Smith']         },
-  { name: 'Lump',   golfers: ['Patrick Reed',        'Alex Fitzpatrick',  'Ryan Fox',             'Keith Mitchell',   'Matt Wallace',     'Angel Ayora']           },
-  { name: 'Mike',   golfers: ['Patrick Cantlay',     'Sam Burns',         'Sahith Theegala',      'Pierceson Coody',  'JT Poston',        'Christiaan Bezuidenhout']},
-  { name: 'AJ',     golfers: ['Matt Fitzpatrick',    'Rickie Fowler',     'Kurt Kitayama',        'Sudarshan Yellamaraju', 'Haotong Li',  'Aldrich Potgieter']     },
-  { name: 'Zboy',   golfers: ['Xander Schauffele',   'J.J. Spaun',        'Maverick McNealy',     'Kristoffer Reitan','Dustin Johnson',   'Aaron Rai']             },
-  { name: 'Sam',    golfers: ['Jon Rahm',            'Si Woo Kim',        'Harris English',       'Thomas Detry',     'Max Homa',         'Jordan Smith']          },
-  { name: 'Greg',   golfers: ['Brooks Koepka',       'Chris Gotterup',    'Matt McCarty',         'Alex Smalley',     'Brian Harman',     'Andrew Novak']          },
-  { name: 'Nick',   golfers: ['Scottie Scheffler',   'Shane Lowry',       'Gary Woodland',        'Ryan Gerard',      'Joe Highsmith',    'Andy Sullivan']         },
-  { name: 'JT',     golfers: ['Tommy Fleetwood',     'Sepp Straka',       'Keegan Bradley',       'Jacob Bridgeman',  'Sam Stevens',      'Ricky Castillo']        },
-  { name: 'Jerm',   golfers: ['Collin Morikawa',     'Justin Thomas',     'Akshay Bhatia',        'Wyndham Clark',    'Nick Taylor',      'Michael Block']         },
-  { name: 'Rod',    golfers: ['Rory McIlroy',        'Robert MacIntyre',  'Hideki Matsuyama',     'David Puig',       'Taylor Pendrith',  'Stephan Jaeger']        },
-  { name: 'Levi',   golfers: ['Bryson DeChambeau',   'Adam Scott',        'Ben Griffin',          'Rasmus Hojgaard',  'Ryo Hisatsune',    'Michael Kim']           },
+  { name: 'JT',     golfers: ['Scottie Scheffler',   'Hideki Matsuyama',  'Chris Gotterup',       'Daniel Berger',    'Dustin Johnson',   'Ben James']             },
+  { name: 'Nick',   golfers: ['Rory McIlroy',        'Shane Lowry',       'Maverick McNealy',     'Alex Noren',       'Ryan Fox',         'Padraig Harrington']    },
+  { name: 'Sam',    golfers: ['Cameron Young',       'J.J. Spaun',        'Si Woo Kim',           'Ryan Gerard',      'Jacob Bridgeman',  'Lucas Herbert']         },
+  { name: 'Levi',   golfers: ['Jon Rahm',            'Jordan Spieth',     'Harris English',       'Rickie Fowler',    'Jason Day',        'Harry Hall']            },
+  { name: 'Rod',    golfers: ['Matt Fitzpatrick',    'Aaron Rai',         'Collin Morikawa',      'Nicolai Højgaard', 'JT Poston',        'Matt McCarty']          },
+  { name: 'Doug',   golfers: ['Xander Schauffele',   'Brooks Koepka',     'Robert MacIntyre',     'Kristoffer Reitan','David Puig',       'Jake Knapp']            },
+  { name: 'Greg',   golfers: ['Tommy Fleetwood',     'Patrick Cantlay',   'Alex Fitzpatrick',     'Kurt Kitayama',    'Sudarshan Yellamaraju', 'Michael Kim']      },
+  { name: 'Travis', golfers: ['Ludvig Aberg',        'Justin Rose',       'Joaquin Niemann',      'Adam Scott',       'Alex Smalley',     'Pierceson Coody']       },
+  { name: 'Zboy',   golfers: ['Wyndham Clark',       'Viktor Hovland',    'Ben Griffin',          'Keegan Bradley',   'Brian Harman',     'Neal Shipley']          },
+  { name: 'AJ',     golfers: ['Russell Henley',      'Sam Burns',         'Min Woo Lee',          'Akshay Bhatia',    'Sahith Theegala',  'Corey Conners']         },
+  { name: 'Mike',   golfers: ['Bryson DeChambeau',   'Tyrrell Hatton',    'Cameron Smith',        'Bud Cauley',       'Keith Mitchell',   'Chris Kirk']            },
+  { name: 'Lump',   golfers: ['Patrick Reed',        'Justin Thomas',     'Gary Woodland',        'Sepp Straka',      'Jackson Koivun',   'Nick Taylor']           },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
